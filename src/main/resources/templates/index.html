@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+	<div th:replace="common/top.html"></div>
+	<!-- 	<div th:insert="common/top.html"></div> -->
+	
+	<section class="posts-slider" id = "boardGrid1">
+
+        <div class="slider-container">
+            <div th:each="board : ${banner}" class="slider-item" th:data-board-no="${board.boardNo}">
+            	<img th:if="${board.thumbnailUrl != null}" th:src="${board.thumbnailUrl}">
+                <img th:if="${board.thumbnailUrl == null}"  src="/image/HAMO_Thumbnail.png"> 
+	            <div class="slider-item-content">
+	                <h2 th:text="${#strings.abbreviate(board.title,9)}"></h2>
+
+	                <p th:text="${#strings.abbreviate(board.content,12)}"></p>
+	                <p>조회수: <span th:text="${board.views}"></span></p>
+	                <p>참여자: <span th:text="${board.participants}"></span>/<span th:text="${board.maxParticipants}"></span></p>
+	            </div>
+
+	        	</div>
+	        </div>
+        <div class="slider-nav">
+<!--             <button class="prev-btn">&lt;</button> -->
+<!--             <button class="next-btn">&gt;</button> -->
+
+
+        	</div>
+
+        </div>
+    </section>
+
+	<main>
+		<div class="title-flex">
+			<h2>나를 기다리는 하모</h2>
+			<label th:if="${session.loginUser != null}" class="insertBoard" onclick="location.href='/board/boardInsert'">글쓰기</label>
+		</div>
+			<section class="board-grid" id = "boardGrid">
+				<div class="board-item" th:each="b : ${list}">	
+					<div class="board-img" th:if="${b.thumbnailUrl != null}">
+						<img alt="board-img" th:src="${b.thumbnailUrl}">
+					</div>
+					<div class="board-img" th:if="${b.thumbnailUrl == null}">
+						<img alt="board-img" src="/image/HAMO_Thumbnail.png">
+					</div>
+					<div class="board-info">
+						<h3>[[${b.title}]]</h3>
+						<p class="board-details">[[${b.categoryName}]] | [[${b.locationName}]] 지역 |
+							[[${b.participants}]]/[[${b.maxParticipants}]]</p>
+						<input type="hidden" name="boardNo" th:value="${b.boardNo}">
+					</div>
+				</div>
+			</section>
+<!-- 		</form> -->
+		<br />
+	</main>
+	<!-- 맨 위로 가기 버튼 -->
+	<button class="scroll-to-top" id="scrollToTopBtn">
+    	<i class="fas fa-arrow-up"></i>
+	</button>
+	
+	<div th:insert="common/footer.html"></div>
+	
+	<script th:inline = "javascript">
+		
+		//게시글 클릭하면 게시글 상세 페이지로 날아가는 스크립트
+		window.onload = () => {
+		    const board = document.getElementsByClassName('board-item');
+		    const form = document.getElementById('myform');
+		    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+		
+		    // 게시글 클릭 시 상세 페이지로 이동
+		    for (const div of board) {
+		        div.addEventListener('click', () => {
+		            console.log(div.querySelectorAll('input'));
+		            const bNo = div.querySelectorAll('input')[0].value;
+		            console.log(bNo);
+		            location.href = "/board/" + bNo;
+		        });
+		    }
+		
+		    // 스크롤 시 버튼 표시/숨김 처리
+		    window.onscroll = function () {
+		        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+		            scrollToTopBtn.style.display = "block"; // 스크롤 100px 이상이면 버튼 표시
+		        } else {
+		            scrollToTopBtn.style.display = "none"; // 스크롤 100px 이하이면 버튼 숨김
+		        }
+		    };
+		
+		    // 버튼 클릭 시 페이지 맨 위로 스크롤
+		    scrollToTopBtn.addEventListener('click', () => {
+		        window.scrollTo({ top: 0, behavior: 'smooth' }); // 부드럽게 스크롤
+		    });
+  
+		};
+		
+// 		 var sliderContainer = document.querySelector('.slider-container');
+		
+// 		var clone = sliderContainer.firstElementChild.cloneNode(true);
+//         sliderContainer.appendChild(clone);
+
+//         function showSlide() {
+    	
+//         	 var currentIndex = 0;
+//     	setInterval(() => {
+//     		sliderContainer.style.transition = '0.2s';
+//     		sliderContainer.style.transform = "translate3d(-"+200*(currentIndex+1)+"px,0px,0px)";
+    		
+//     		currentIndex++;
+//     		if(currentIndex == 10) {
+//     			setTimeout(()=> {
+//     				sliderContainer.style.transition = '0s';
+//         			sliderContainer.style.transform = "translate3d(0px,0px,0px)";		
+//     			},201)
+//     			currentIndex = 0;
+//     		}
+    		
+//     	},2000);
+//     }
+		
+		
+		
+
+		 document.addEventListener('DOMContentLoaded', function() {
+	            var sliderContainer = document.querySelector('.slider-container');
+	            const slides = document.querySelectorAll('.slider-item');
+// 	            const prevBtn = document.querySelector('.prev-btn');
+// 	            const nextBtn = document.querySelector('.next-btn');
+	            let currentIndex = 0;	// 현재 표시중인 슬라이드 인덱스 
+				
+// 	            const clone = sliderContainer.cloneNode(true);
+// // 	          	sliderContainer.appendChild(clone);
+// 				document.querySelector('.posts-slider').appendChild(clone);
+// 				document.querySelector('.slider-container').offsetWidth + "px";
+				
+	            
+// 	            showSlide();
+	        
+	            
+	            function showSlide(index) {
+
+
+	            	sliderContainer.style.transform = `translateX(-${index * 100}%)`;	// 컨테이너 이동시켜서 해당 슬라이드 보여줌
+
+	            	sliderContainer.style.transform = `translateX(-${index * slides[0].offsetWidth}px)`;	// 컨테이너 이동시켜서 해당 슬라이드 보여줌
+
+					
+	            	
+	            }
+
+	            function nextSlide() {
+	                currentIndex = (currentIndex + 1) % 7;  // 0부터 6까지 순환하게 설정
+	                showSlide(currentIndex);
+	            }
+
+
+	            function prevSlide() {
+	                currentIndex = (currentIndex - 1 + slides.length) % slides.length;	// 순환 구조로 인덱스 계산 
+	                showSlide(currentIndex);
+	            }
+
+
+	            
+// 	            nextBtn.addEventListener('click', nextSlide);	
+// 	            prevBtn.addEventListener('click', prevSlide);
+
+			
+	          
+
+	            let slideInterval = setInterval(nextSlide, 3000);	
+
+	            // 5초마다 다음 슬라이드 이동
+	            
+	            slides.forEach(slide => {
+	                slide.addEventListener('click', function() {
+	                    const boardNo = this.getAttribute('data-board-no');	// 해당 게시글 페이지 이동 
+	                   	location.href = `/board/${boardNo}`;
+	                });
+	
+	               
+	                
+	                slide.addEventListener('mouseenter', () => clearInterval(slideInterval));		// 마우스 슬라이드 위에 있으면 슬라이드 정지 
+	                slide.addEventListener('mouseleave', () => slideInterval = setInterval(nextSlide, 2000));	// 마우스 슬라이드 벗어나면 다시 슬라이드 작동 
+	            
+	            });
+	        });
+		 
+		 document.addEventListener("click", (e) => {		// 특정 카테고리 게시글 목록 중에서 게시글 클릭시 해당 게시글 페이지로 
+	            if (e.target.closest(".board-item")) {
+	                const boardNo = e.target.closest(".board-item").querySelector("input[name='boardNo']").value;
+	                location.href = "/board/" + boardNo;
+	            }
+	        });
+		
+		 
+
+	</script>
+</body>
+</html>

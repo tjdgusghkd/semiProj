@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/admin/dashboard.css">
+
+    <!-- FullCalendar 및 기타 스타일 및 스크립트 유지 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.js"></script>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2/dist/echarts.min.js"></script>
+
+
+    <style>
+        .calendar-container {
+            margin: 20px;
+        }
+        .calendar-wrapper {
+            display: flex;
+            justify-content: space-between;
+        }
+        .calendar-title {
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <div th:replace="admin/admin-main.html"></div>
+
+        <div class="content">
+            <h1>DASHBOARD</h1>
+
+            <div class="graph-container">
+			    
+			    <div id="myLineChart" style="width: 65rem; height: 25rem;"></div>
+			</div>
+
+            <div class="table-container">
+                <div class="calendar-wrapper">
+                    <div class="calendar-container">
+                        <h3 class="calendar-title">게시글 수</h3>
+                        <div id="calendar1"></div>
+                    </div>
+                    <div class="calendar-container">
+                        <h3 class="calendar-title">이용자 수</h3>
+                        <div id="calendar2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+	    let labels = /*[[${dailyUserCount.![weekDayName]}]]*/0; 
+	    let data = /*[[${dailyUserCount.![count]}]]*/0; 
+    
+    
+	    let myChart = echarts.init(document.getElementById('myLineChart'));
+	    let option = {
+	        title: {
+	            text: '1주 사용자 이용량'
+	        },
+	        tooltip: {
+	            trigger: 'axis'
+	        },
+	        xAxis: {
+	            type: 'category',
+	            data: labels // 요일
+	        },
+	        yAxis: {
+	            type: 'value',
+	            min: 0,  // 최소값
+	            max: 20 // 최대값
+	        },
+	        series: [{
+	            data: data, // 데이터
+	            type: 'line'
+	        }]
+	    };
+	    myChart.setOption(option);
+
+
+        // FullCalendar 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            let calendarEl1 = document.getElementById('calendar1');
+            let calendarEl2 = document.getElementById('calendar2');
+			
+            const boardCounts = /*[[${boardCount}]]*/0;
+            let events1 = boardCounts.map(function(item) {
+            	return {
+            		title: item.count.toString() + '개',
+            		date: item.createDate
+            	};
+            });
+            const userCounts = /*[[${userCount}]]*/0;
+            let events2 = userCounts.map(function(item) {
+            	return {
+            		title: item.count.toString() + '명',
+            		date: item.visitDate
+            	}
+            });
+            let calendar1 = new FullCalendar.Calendar(calendarEl1, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    start: 'prev', 
+                    center: 'title', 
+                    end: 'today next', 
+                },
+                locale: 'ko',
+                events: events1
+            });
+            let calendar2 = new FullCalendar.Calendar(calendarEl2, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    start: 'prev', 
+                    center: 'title', 
+                    end: 'today next', 
+                },
+                locale: 'ko',
+                events: events2
+            });
+
+            calendar1.render();
+            calendar2.render();
+        });
+        
+     // isAdmin 값을 Thymeleaf로 주입
+    	
+		
+    </script>
+</body>
+</html>

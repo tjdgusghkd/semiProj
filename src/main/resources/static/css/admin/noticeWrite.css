@@ -1,0 +1,131 @@
+
+/* 기본 스타일 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 20px;
+}
+
+/* 헤더 및 사이드바 */
+.header {
+    margin-left: 250px; /* 사이드바 여백 */
+    padding: 20px;
+    width: calc(100% - 250px); /* 사이드바 제외한 영역 */
+    overflow: auto;
+}
+
+.content {
+    word-wrap: break-word; /* 긴 단어가 줄을 넘지 않도록 처리 */
+    min-height: 900px; /* 기본 최소 높이 설정 (필요에 따라 조정) */
+    height: auto;
+}
+
+.note-editable{
+	height: auto !important;
+	min-height: 900px;
+}
+
+/* 공지 작성 폼 스타일 */
+.notice-create {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-top: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.notice-create h1 {
+    font-size: 32px;
+    color: #444;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.notice-create label {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.notice-create input,
+.notice-create textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease;
+}
+
+.notice-create input:focus,
+.notice-create textarea:focus {
+    border-color: #28a745;
+    outline: none;
+}
+
+.notice-create textarea {
+    resize: vertical;
+    min-height: 750px;
+}
+
+#notice-write {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#submit-btn {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.notice-create button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+	
+
+/* 화면 크기별 반응형 디자인 */
+@media (max-width: 768px) {
+    .header {
+        margin-left: 0;
+        width: 100
+    }
+
+    .notice-create {
+        margin: 0 15px;
+    }
+
+    .notice-create h1 {
+        font-size: 28px;
+    }
+
+    .notice-create input,
+    .notice-create textarea {
+        font-size: 16px;
+    }
+}

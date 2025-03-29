@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>공지 페이지</title>
+<link rel="stylesheet" href="/css/admin/notice.css">
+
+
+</head>
+<body>
+	<!-- 관리자 메인 페이지 포함 -->
+	<div th:replace="admin/admin-main.html"></div>
+
+	<!-- 공지 페이지 제목 -->
+	<div class="header">
+		<h1>NOTICE</h1>
+
+		<!-- 공지 목록 및 공지 작성 -->
+		<div class="content-wrapper">
+			<!-- 공지 목록 -->
+			<!-- 공지 목록 -->
+			<div class="notice-list">
+				<div class="notice-item" th:each="a : ${list}">
+					<!-- 제목 50자 제한 -->
+					<h3>제목 : 	
+						<span th:text="${#strings.length(a.title) > 20 ? #strings.substring(a.title, 0, 20) + '...' : a.title}"></span>
+						<!-- plus-btn	을 제목 우측으로 배치 -->
+						<!-- plus-btn -->
+<!-- 						<button class="plus-btn" -->
+<!-- 							th:if="${session.loginUser != null && session.loginUser.memberNo == a.writer}">⋮</button> -->
+					</h3>
+
+					<!-- 수정 & 삭제 버튼을 위한 form -->
+					
+					<input type="hidden" id ="boardNo" name="id" th:value="${a.boardNo}" /> 
+					<input type="hidden" id="page" name="page" th:value="${pi.currentPage}" />
+
+						<!-- 옵션 메뉴 -->
+<!-- 						<div class="options" style="display: none"> -->
+<!-- 							<button class="edit-btn" type="button">수정하기</button> -->
+<!-- 							<button class="delete-btn" type="button">삭제하기</button> -->
+<!-- 						</div> -->
+					
+
+					<!-- 내용 100자 제한 -->
+					<p>
+						내용 : <span
+							th:text="${#strings.length(a.content) > 10 ? #strings.substring(a.content, 0, 10) + '...' : a.content}"></span>
+					</p>
+
+					<p>작성자 : [[${a.memberNickname}]] | 작성일: [[${a.createDate}]]</p>
+				</div>
+			</div>
+
+
+			<!-- 공지 작성 -->
+			<button id="notice-form" class="submit-btn"
+				onclick="location.href='/admin/noticeWrite'">작성하기</button>
+		</div>
+	</div>
+	<!-- 페이지 하단 중앙에 페이징 처리 -->
+	<nav aria-label="Standard pagination example">
+		<ul class="pagination">
+			<!-- 이전 페이지 -->
+			<li class="page-item" th:classappend="${pi.currentPage == 1} ? 'disabled'">
+                  <a class="page-link" th:href="${pi.currentPage > 1} ? @{${loc}(page=${pi.currentPage-1})} : ''" aria-label="Previous">
+                     <span aria-hidden="true">&laquo;</span>
+                  </a>
+               </li>
+               
+               <!-- 페이지 번호 -->
+               <li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}" 
+                                th:classappend="${p == pi.currentPage} ? 'active'">
+                  <a class="page-link" th:href="@{${loc}(page=${p})}">[[${p}]]</a>
+               </li>
+
+               <!-- 다음 버튼 -->
+               <li class="page-item" th:classappend="${pi.currentPage == pi.maxPage} ? 'disabled'">
+                  <a class="page-link" th:href="${pi.currentPage < pi.maxPage} ? @{${loc}(page=${pi.currentPage+1})} : ''" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span></a>
+               </li>
+		</ul>
+	</nav>
+	<script th:inline="javascript">
+
+
+
+	const noticeItems = document.querySelectorAll(".notice-item");
+
+    // 각 .notice-item에 클릭 이벤트 추가
+    for (const item of noticeItems) {
+        item.addEventListener("click", function() {
+            // dataset을 이용해 boardNo와 page 값을 가져옴
+            const boardNo = this.querySelector("input[name='id']").value;
+            const page = this.querySelector("input[name='page']").value;
+            
+            // 상세 페이지로 이동
+            location.href = `/board/${boardNo}/${page}`;
+        });
+    }
+
+	</script>
+
+
+</body>
+</html>

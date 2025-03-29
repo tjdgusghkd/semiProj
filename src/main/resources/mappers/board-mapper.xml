@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hamo.board.model.mapper.BoardMapper">
+	<select id="selectBoardList" resultType="Board">
+		select *
+		from board b
+			join member m on b.member_no = m.member_no
+			join location l on b.location_no = l.location_no
+			join category c on b.category_no = c.category_no
+		where b.board_status = 'Y'
+		order by b.board_no DESC
+	</select>
+	
+	<select id="selectBoard">
+		select *
+		from board b
+			join member m on b.member_no = m.member_no
+			join location l on b.location_no = l.location_no
+			join category c on b.category_no = c.category_no
+		where board_no = #{boardNo}
+	</select>
+	
+
+	<insert id="boardInsert">
+		<selectKey order="BEFORE" resultType="_int" keyProperty="boardNo">
+			select seq_board.nextval from dual
+		</selectKey>
+		insert into board
+		values(#{boardNo}, #{title}, #{content}, default, default, default, #{maxParticipants}, default, #{memberNo}, #{locationNo}, #{categoryNo})
+	</insert>
+	
+	
+	<insert id="imageInsert">
+      insert all
+      <foreach collection="list" item="image" separator=" " index="i"> 
+         into image
+         values(new_iid, #{image.imgName}, #{image.imgPath}, #{image.imgRename}, #{image.delimiter}, #{image.buNo})
+      </foreach>
+      select * from dual
+   </insert>
+
+	<select id="selectNotice" resultType="Admin">
+		select *
+		from admin_board
+		where admin_board_status='Y' and
+			  board_no=#{boardNo}		  
+	</select>
+	
+	<update id="updateNoticeCount">
+		update admin_board
+		set views = views+1
+		where board_no=#{boardNo}
+	</update>
+	
+	<select id="selectImageList">
+		select *
+		from image
+		where bu_no = #{bNo}
+	</select>
+	
+	<insert id="insertReply">
+		insert into reply
+		values(seq_reply.nextval, default, #{replyContent}, default, default, #{memberNo}, #{boardNo})
+	</insert>
+	
+	<select id="selectReplyList">
+		select *
+		from reply r
+			join member m on (r.member_no = m.member_no)
+		where board_no = #{bNo} and reply_status = 'Y'
+		order by reply_no 
+	</select>
+	
+	<select id="participantsByBoard">
+		select board_no, count(status) as participants
+		from participant
+		where status = 'a'
+		group by board_no
+	</select>
+	
+	<select id="selectUserImageList">
+		select *
+		from image
+		where delimiter = 'U'
+	</select>
+	
+	<select id="selectImageListBoard">
+		select *
+		from image
+		where delimiter = 'B'
+	</select>
+	
+	<update id="updateBoardCount">
+		update board
+		set views = #{views} + 1
+		where board_no = #{boardNo}
+	</update>
+
+	<insert id="insertParticipant">
+		insert into participant
+		values(#{memberNo}, #{boardNo}, 'w')
+	</insert>
+	
+	<select id="selectParticipant">
+		select count(*)
+		from participant
+		where member_no = #{memberNo} and board_no = #{boardNo}
+	</select>
+	
+	<insert id="insertLog">
+		insert into visit_logs
+		values(seq_log_id.nextval, #{ipAddress}, #{userAgent}, sysdate)
+	</insert>
+
+	
+	<select id="selectAllLog" resultType="Dashboard">
+		select id, ip_address, user_agent, TO_CHAR(visit_date, 'YYYY-MM-DD') AS visit_date
+		from visit_logs
+	</select>
+
+
+	<select id="selectCategory">
+		select * from category order by category_no
+	</select>
+	
+	<select id="boardCategory">
+		select b.*, m.member_nickname, l.location_name, c.category_name
+		from board b
+			join member m on b.member_no = m.member_no
+			join location l on b.location_no = l.location_no
+			join category c on b.category_no = c.category_no
+			where b.category_no = #{categoryNo}
+			and b.board_status = 'Y'
+			order by b.board_no desc
+	</select>
+	
+	<select id="getBanner" resultType = "Board">
+		select b.*, m.member_nickname, l.location_name, c.category_name,
+			(select count(*) from participant p where p.board_no = b.board_no) as participants,
+			(select i.img_rename from image i where i.bu_no = b.board_no and i.delimiter = 'b' fetch first 1 row only) as thumbnailUrl
+		from board b
+			join member m on b.member_no = m.member_no
+			join location l on b.location_no = l.location_no
+			join category c on b.category_no = c.category_no
+		where b.board_status = 'Y'
+		order by b.views desc, participants desc
+		fetch first 10 rows only
+
+	</select>
+	
+	<select id="searchResult" resultType="Board">
+		select b.*, l.location_name, c.category_name,
+			(select count(*) from participant p where p.board_no = b.board_no) as participants
+		from board b
+			left join location l on b.location_no = l.location_no
+			left join category c on b.category_no = c.category_no
+		where board_status = 'Y' and	
+			  (title like '%' || #{searchValue} || '%' 
+	       		 or content like '%' || #{searchValue} || '%')
+
+	</select>
+	
+	<update id="updateBoard">
+		update board
+		set title = #{title}, content = #{content}, update_date = sysdate, max_participants = #{maxParticipants}, location_no = #{locationNo}, category_no = #{categoryNo}
+		where board_no = #{boardNo} and board_status = 'Y'
+	</update>
+	
+	<delete id="deleteImg">
+		delete
+		from Image
+		where img_rename in
+		<foreach collection="list" item="rename" index="index" open="(" separator="," close=")">
+			#{rename}
+		</foreach>
+	</delete>
+	
+	<update id="boardDelete">
+		update board
+		set board_status = 'N'
+		where board_no = #{bNo}
+	</update>
+	
+	<update id="deleteReply">
+		update reply
+		set reply_status = 'N'
+		where reply_no = #{rId}
+	</update>
+</mapper>

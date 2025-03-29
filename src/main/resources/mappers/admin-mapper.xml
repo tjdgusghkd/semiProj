@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hamo.admin.model.mapper.AdminMapper">
+	<insert id="writeNotice">
+		insert into admin_board
+		values(seq_admin_board.nextval, #{title}, 
+		#{content}, default, default, default, default, #{writer})
+	</insert>
+	
+	<select id="getListCount" resultType="_int">
+		select count(*)
+		from admin_board
+		where admin_board_status = 'Y'
+	</select>
+	
+	<select id="selectNoticeList" resultType="Admin">
+		select board_no, title, content, a.create_date, a.update_date, views, admin_board_status, writer, member_nickname
+		from admin_board a
+			 join member m on(writer=member_no)
+		where admin_board_status = 'Y'
+		order by create_date desc
+	</select>
+	
+	<select id="selectNoticeOne" resultType="Admin">
+		select  board_no, title, content
+		from admin_board
+		where admin_board_status = 'Y' and
+			  board_no = #{id}
+	</select>
+	
+	<update id="updateNotice">
+		update admin_board
+		set title=#{title},
+			content=#{content},
+			update_date=sysdate
+		where board_no=#{boardNo}
+	</update>
+	
+	<update id="deleteNotice">
+		update admin_board
+		set admin_board_status = 'N'
+		where board_no=#{boardNo}
+	</update>
+	
+	<select id="selectAllMember">
+		select * 
+		from member
+		where is_admin = 'N'
+	</select>
+	<update id="changeStatus">
+		update member
+		set status=#{isStatus}
+		where member_no=#{mId}
+	</update>
+	
+	<select id="searchUserList" resultType="Member">
+	    SELECT *
+	    FROM member
+	    WHERE member_name LIKE '%' || #{searchValue} || '%'
+	</select>
+
+	
+	<select id="selectAllBoardList">
+		select board_no, title, member_no, member_nickname
+		from board b
+			 join member m using(member_no)
+		where board_status='Y'
+	</select>
+	
+	<update id="deleteBoard">
+		update board
+		set board_status='N'
+		where board_no=#{boardNo}
+	</update>
+	
+	<select id="searchBoardList" resultType="Board">
+	    select *
+	    from board b
+	    	 join member m on(b.member_no = m.member_no)
+	    where board_status='Y'
+	    <if test="searchCategory=='title'">
+	        and title like '%' || #{searchValue} || '%'
+	    </if>
+	    <if test="searchCategory=='content'">
+	        and content like '%' || #{searchValue} || '%'
+	    </if>
+	    <if test="searchCategory=='author'">
+	        and member_nickname like '%' || #{searchValue} || '%'
+	    </if>
+	    <if test="searchCategory=='title_content'">
+	        and (title like '%' || #{searchValue} || '%' 
+	        or content like '%' || #{searchValue} || '%')
+	    </if>
+	</select>
+	
+	<select id="boardCount" resultType="dashboard">
+		SELECT TRUNC(create_date) as create_date, COUNT(*) as count
+		FROM board
+		WHERE board_status = 'Y'
+		GROUP BY TRUNC(create_date)
+		ORDER BY TRUNC(create_date) DESC
+	</select>
+	
+	<select id="userCount" resultType="dashboard">
+		SELECT TRUNC(visit_date) as visit_date, COUNT(*) as count
+		FROM visit_logs		
+		GROUP BY TRUNC(visit_date)
+		ORDER BY TRUNC(visit_date) DESC
+	</select>
+	
+	<select id="dailyUserCount" resultType="dashboard">
+		SELECT TO_CHAR(visit_date, 'DY', 'NLS_DATE_LANGUAGE=KOREAN') AS week_day_name,
+						COUNT(*) AS count
+		FROM visit_logs
+		WHERE visit_date BETWEEN TRUNC(SYSDATE, 'IW') - 7 AND TRUNC(SYSDATE, 'IW') - 1  
+		GROUP BY TO_CHAR(visit_date, 'DY', 'NLS_DATE_LANGUAGE=KOREAN'), TO_CHAR(visit_date, 'D')  
+		ORDER BY DECODE(TO_CHAR(visit_date, 'D'), 
+							'2', 1, '3', 2, '4', 3, '5', 4, '6', 5, '7', 6, '1', 7)
+	</select>
+	
+</mapper>
